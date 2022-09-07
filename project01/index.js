@@ -5,8 +5,8 @@ import getBookInformation from "./src/get.js";
 import insertBookInformation from "./src/post.js";
 import deleteBookInformation from "./src/delete.js";
 import updateBookInformation from "./src/update.js";
-const app = express();
 
+const app = express();
 const jsonParser = bodyParser.json();
 
 //Open database

@@ -1,6 +1,6 @@
 import { uuid } from "uuidv4";
 import sqlite3 from "sqlite3";
-import sampleData from "./database/sample_data.json" assert { type: "json" };
+//import sampleData from "./database/sample_data.json" assert { type: "json" };
 
 export const insertEachRow = (
   db,

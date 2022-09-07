@@ -19,18 +19,20 @@ const getBookInformation = async (db, req) => {
   if ([limit === "", !/^[1-9]+$/.test(limit)].includes(true)) limit = undefined;
   if (
     [
+      !field,
       field === "",
       ["id", "title", "author"].includes(field.toUpperCase()),
     ].includes(true)
   )
     field = undefined;
   if (
-    [order === "", !["ASC", "DESC"].includes(order.toUpperCase())].includes(
-      true
-    )
+    [
+      !order,
+      order === "",
+      !["ASC", "DESC"].includes(order.toUpperCase()),
+    ].includes(true)
   )
     order = undefined;
-
   const query = generateQueryStatement(page, limit, field, order);
   const result = new Promise((resolve, reject) => {
     db.all(query, [], (err, rows) => {
