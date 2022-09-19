@@ -1,0 +1,4 @@
+{
+  "signUp": { "endpoint": "/signup", "method": "POST", "schema": "signUp" },
+  "signIn": { "endpoint": "/signin", "method": "POST", "schema": "signIn" }
+}
