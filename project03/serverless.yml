@@ -1,0 +1,51 @@
+org: sylitas
+app: project03
+service: project03
+frameworkVersion: "3"
+
+custom:
+  dynamoDBConfig:
+    tableName:
+      usersTable: "users-table-${sls:stage}"
+    indexName:
+      usersTableUserIdIndex: usersTable-userId-index
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - Fn::GetAtt: [UsersTable, Arn]
+  environment:
+    ConfigLimit: 10mb
+    usersTableName: dynamoDBConfig.tableName.usersTable
+
+functions:
+  shoppingTime:
+    handler: dist/handler.handler
+    events:
+      - httpApi: "*"
+
+resources:
+  Resources:
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: dynamoDBConfig.tableName.usersTable
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST

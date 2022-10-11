@@ -1,0 +1,21 @@
+{
+  "name": "project03",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "predeploy": "rm -rf ./dist && webpack",
+    "deploy": "sls deploy"
+  },
+  "dependencies": {
+    "ajv": "^8.11.0",
+    "aws-sdk": "^2.1231.0",
+    "babel-loader": "^8.2.5",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "serverless-http": "^2.7.0",
+    "yaml-cfn": "^0.3.1"
+  },
+  "devDependencies": {
+    "webpack-cli": "^4.10.0"
+  }
+}
