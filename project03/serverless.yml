@@ -1,14 +1,26 @@
 org: sylitas
 app: project03
 service: project03
-frameworkVersion: "3"
+frameworkVersion: '3'
 
 custom:
   dynamoDBConfig:
     tableName:
-      usersTable: "users-table-${sls:stage}"
+      usersTable: 'users-table-${sls:stage}'
+      productsTable: 'products-table-${sls:stage}'
+      ordersTable: 'orders-table-${sls:stage}'
     indexName:
-      usersTableUserIdIndex: usersTable-userId-index
+      usersTableEmailIndex: usersTable-email-index
+
+  arnPrefixes:
+    dynamodb: !Join
+      - ':'
+      - - arn
+        - !Ref AWS::Partition
+        - dynamodb
+        - !Ref AWS::Region
+        - !Ref AWS::AccountId
+        - table
 
 provider:
   name: aws
@@ -17,6 +29,7 @@ provider:
     role:
       statements:
         - Effect: Allow
+          Sid: Dynamodb
           Action:
             - dynamodb:Query
             - dynamodb:Scan
@@ -25,27 +38,151 @@ provider:
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
           Resource:
-            - Fn::GetAtt: [UsersTable, Arn]
+            - !Join
+              - '/'
+              - - '${self:custom.arnPrefixes.dynamodb}'
+                - '${self:custom.dynamoDBConfig.tableName.usersTable}*'
+            - !Join
+              - '/'
+              - - '${self:custom.arnPrefixes.dynamodb}'
+                - '${self:custom.dynamoDBConfig.tableName.productsTable}*'
+            - !Join
+              - '/'
+              - - '${self:custom.arnPrefixes.dynamodb}'
+                - '${self:custom.dynamoDBConfig.tableName.ordersTable}*'
+        - Effect: Allow
+          Sid: Cognito
+          Action:
+            - cognito-idp:AdminInitiateAuth
+            - cognito-idp:AdminCreateUser
+            - cognito-idp:AdminSetUserPassword
+            - cognito-idp:ForgotPassword
+          Resource: '*'
+        - Effect: Allow
+          Sid: SES
+          Action:
+            - ses:SendEmail
+            - ses:SendRawEmail
+          Resource: '*'
   environment:
     ConfigLimit: 10mb
-    usersTableName: dynamoDBConfig.tableName.usersTable
+    usersTableName: ${self:custom.dynamoDBConfig.tableName.usersTable}
+    productsTableName: ${self:custom.dynamoDBConfig.tableName.productsTable}
+    ordersTableName: ${self:custom.dynamoDBConfig.tableName.ordersTable}
+    usersTableIndexEmail: ${self:custom.dynamoDBConfig.indexName.usersTableEmailIndex}
+    userPoolId: { Ref: UserPool }
+    userClientId: { Ref: UserClient }
 
 functions:
+  accountManagement:
+    name: accountManagementLambda
+    handler: dist/accountManagement.handler
+    events:
+      - http: &NoAuthorize
+          path: 'signUp'
+          method: post
+          cors: true
+      - http:
+          <<: *NoAuthorize
+          path: 'signIn'
+      - http:
+          <<: *NoAuthorize
+          path: 'forgotPassword'
+      - http:
+          <<: *NoAuthorize
+          path: 'confirmPassword'
+
   shoppingTime:
+    name: shoppingTimeLambda
     handler: dist/handler.handler
     events:
-      - httpApi: "*"
+      - http: &HasAuthorize
+          path: 'user'
+          method: any
+          cors: true
+          authorizer:
+            name: shoppingTimeAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt: [UserPool, Arn]
+            claims:
+              - email
+      - http:
+          <<: *HasAuthorize
+          path: 'product'
+      - http:
+          <<: *HasAuthorize
+          path: 'order'
 
 resources:
   Resources:
+    # Cognito
+    UserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: shoppingTime-user-pool
+        Schema:
+          - Name: email
+            Required: true
+            Mutable: true
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 6
+        AutoVerifiedAttributes: ['email']
+
+    UserClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: shopping-time-user-client
+        GenerateSecret: false
+        UserPoolId: { Ref: UserPool }
+        AccessTokenValidity: 12
+        IdTokenValidity: 5
+        ExplicitAuthFlows:
+          - 'ADMIN_NO_SRP_AUTH'
+
+    # DynamoDB
     UsersTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: dynamoDBConfig.tableName.usersTable
+        TableName: ${self:custom.dynamoDBConfig.tableName.usersTable}
+        BillingMode: PAY_PER_REQUEST
         AttributeDefinitions:
           - AttributeName: userId
+            AttributeType: S
+          - AttributeName: email
             AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: ${self:custom.dynamoDBConfig.indexName.usersTableEmailIndex}
+            KeySchema:
+              - AttributeName: email
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+
+    ProductsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.dynamoDBConfig.tableName.productsTable}
         BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: productId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: productId
+            KeyType: HASH
+
+    OrdersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.dynamoDBConfig.tableName.ordersTable}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: orderId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: orderId
+            KeyType: HASH

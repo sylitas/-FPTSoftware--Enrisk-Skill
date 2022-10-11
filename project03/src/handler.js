@@ -1,7 +1,7 @@
-import cors from "cors";
-import express from "express";
-import serverless from "serverless-http";
-import { setupRouter } from "./routers/index.js";
+import cors from 'cors';
+import express from 'express';
+import serverless from 'serverless-http';
+import { setupRouter } from './routers/index';
 
 const app = express();
 
@@ -13,8 +13,8 @@ app.use(express.urlencoded({ limit, extended: true }));
 
 setupRouter(app);
 
-app.use((req, res, next) => {
-  res.status(404).send("Page Not Found");
+app.use((req, res) => {
+  res.status(404).send('Page Not Found');
 });
 
 export const handler = serverless(app);

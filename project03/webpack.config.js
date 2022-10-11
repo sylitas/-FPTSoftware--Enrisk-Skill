@@ -1,25 +1,25 @@
-const path = require("path");
-const { yamlParse } = require("yaml-cfn");
-const fs = require("fs");
-const { functions } = yamlParse(fs.readFileSync("./serverless.yml"));
+const path = require('path');
+const { yamlParse } = require('yaml-cfn');
+const fs = require('fs');
+const { functions } = yamlParse(fs.readFileSync('./serverless.yml'));
 
 module.exports = {
   entry: Object.keys(functions)
     .map((key) => functions[key].handler)
     .reduce((result, current) => {
-      const entry = current.split(".")[0].replace("dist/", "");
+      const entry = current.split('.')[0].replace('dist/', '');
       if (!result[entry]) {
         result[entry] = `./src/${entry}`;
       }
       return result;
     }, {}),
 
-  mode: "development",
-  target: "node",
+  mode: 'development',
+  target: 'node',
   devtool: false, // 'source-map',
   resolve: {
-    extensions: [".js", ".es6"],
-    modules: ["node_modules"],
+    extensions: ['.js', '.es6'],
+    modules: ['node_modules'],
   },
   module: {
     rules: [
@@ -27,18 +27,23 @@ module.exports = {
         test: /\.js$/,
         use: [
           {
-            loader: "babel-loader",
+            loader: 'babel-loader',
           },
         ],
       },
     ],
   },
   plugins: [],
-  externals: ["aws-sdk"],
+  externals: [
+    'aws-sdk',
+    {
+      express: 'express',
+    },
+  ],
   output: {
-    libraryTarget: "commonjs2",
-    path: path.join(__dirname, "dist"),
-    filename: "[name].js",
+    libraryTarget: 'commonjs2',
+    path: path.join(__dirname, 'dist'),
+    filename: '[name].js',
   },
   optimization: {
     minimize: false,

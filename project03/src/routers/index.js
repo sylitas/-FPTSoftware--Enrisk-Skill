@@ -1,30 +1,63 @@
-import apiInfo from "./api.js";
-import controller from "../controller/index.js";
-import { validation } from "../libraries/ajv.js";
+/* eslint-disable no-unused-vars */
+import apiInfo from './api';
+import controller from '../controller/index';
+import { validation } from '../libraries/ajv';
+import { DYNAMO_DB, ROLE, PERMISSION } from '../libraries/const';
+import { getEmailFromReq } from '../libraries/util';
+import { query } from '../libraries/dynamoDB';
+
+const validatePermission = async (req, res, next) => {
+  const {
+    mappingHelper: { method, isCheckRole },
+  } = req;
+
+  if (!isCheckRole) return next();
+  try {
+    const email = getEmailFromReq(req);
+    const params = {
+      TableName: DYNAMO_DB.TABLE.USERS_TABLE.NAME,
+      IndexName: DYNAMO_DB.TABLE.USERS_TABLE.INDEX_EMAIL,
+      KeyConditionExpression: '#email = :email',
+      ExpressionAttributeNames: { '#email': 'email' },
+      ExpressionAttributeValues: { ':email': email },
+    };
+    const {
+      Items: [userInfo],
+    } = await query(params);
+    const { role: userRole } = userInfo;
+
+    const methodAccepted = ROLE[Object.keys(ROLE).find((element) => element.toLowerCase() === userRole)].reduce(
+      (pre, cur) => {
+        pre.push(...PERMISSION[cur]);
+        return pre;
+      },
+      [],
+    );
+
+    if (methodAccepted.includes(method)) {
+      req.userInfo = userInfo;
+      return next();
+    }
+    return res.status(401).json({ message: 'You do not have permission!' });
+  } catch (error) {
+    return res.status(500).json({ message: error.message ? error.message : 'Internal server error' });
+  }
+};
 
 const validateRequest = async (req, res, next) => {
   const { body, mappingHelper } = req;
-  if (!body || !mappingHelper.schema || mappingHelper.schema === "") {
-    return next();
-  }
+  if (!body || !mappingHelper.schema || mappingHelper.schema === '') return next();
 
-  const { default: schema } = await import(
-    `../schema/${mappingHelper.schema}.schema.js`
-  );
+  const { default: schema } = await import(`../schema/${mappingHelper.schema}.schema.js`);
 
   const { isVerified, data } = validation({ schema, data: body });
-  if (!isVerified) {
-    res.status(422).json({ message: "Your input params is incorrect!" });
-    return;
-  }
+  if (!isVerified) return res.status(422).json({ message: 'Your input params is incorrect!' });
   req.body = data;
   return next();
 };
 
 const mappingFunction = async (req, res) => {
   const { funcName } = req.mappingHelper;
-  console.log("😎 Sylitas | funcName : ", funcName);
-  console.log("😎 Sylitas | controller : ", controller);
   const func = controller[funcName];
   await func(req, res);
 };
@@ -38,11 +71,14 @@ export const setupRouter = (app) => {
         req.mappingHelper = {
           funcName: route,
           schema: routeMapping.schema,
+          method: routeMapping.method,
+          isCheckRole: routeMapping.isCheckRole,
         };
         next();
       },
+      validatePermission,
       validateRequest,
-      mappingFunction
+      mappingFunction,
     );
   });
 };
