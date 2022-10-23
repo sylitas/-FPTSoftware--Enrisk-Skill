@@ -11,6 +11,8 @@ custom:
       ordersTable: 'orders-table-${sls:stage}'
     indexName:
       usersTableEmailIndex: usersTable-email-index
+      productsTableUserIdIndex: productsTable-userId-index
+      ordersTableUserIdIndex: ordersTable-userId-index
 
   arnPrefixes:
     dynamodb: !Join
@@ -66,10 +68,16 @@ provider:
           Resource: '*'
   environment:
     ConfigLimit: 10mb
-    usersTableName: ${self:custom.dynamoDBConfig.tableName.usersTable}
+    # product - dynamodb
     productsTableName: ${self:custom.dynamoDBConfig.tableName.productsTable}
+    productsTableIndexUserId: ${self:custom.dynamoDBConfig.indexName.productsTableUserIdIndex}
+    # orders - dynamodb
     ordersTableName: ${self:custom.dynamoDBConfig.tableName.ordersTable}
+    ordersTableIndexUserId: ${self:custom.dynamoDBConfig.indexName.ordersTableUserIdIndex}
+    # users - dynamodb
+    usersTableName: ${self:custom.dynamoDBConfig.tableName.usersTable}
     usersTableIndexEmail: ${self:custom.dynamoDBConfig.indexName.usersTableEmailIndex}
+    # cognito
     userPoolId: { Ref: UserPool }
     userClientId: { Ref: UserClient }
 
@@ -171,9 +179,18 @@ resources:
         AttributeDefinitions:
           - AttributeName: productId
             AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
         KeySchema:
           - AttributeName: productId
             KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: ${self:custom.dynamoDBConfig.indexName.productsTableUserIdIndex}
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
 
     OrdersTable:
       Type: AWS::DynamoDB::Table
@@ -183,6 +200,15 @@ resources:
         AttributeDefinitions:
           - AttributeName: orderId
             AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
         KeySchema:
           - AttributeName: orderId
             KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: ${self:custom.dynamoDBConfig.indexName.ordersTableUserIdIndex}
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL

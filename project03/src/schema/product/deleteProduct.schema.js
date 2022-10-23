@@ -1,0 +1,16 @@
+export default {
+  type: 'object',
+  properties: {
+    query: {
+      type: 'object',
+      properties: {
+        productId: {
+          type: 'string',
+          minLength: 1,
+        },
+      },
+      required: ['productId'],
+    },
+  },
+  required: ['query'],
+};

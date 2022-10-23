@@ -48,11 +48,11 @@ const validateRequest = async (req, res, next) => {
   const { body, mappingHelper } = req;
   if (!body || !mappingHelper.schema || mappingHelper.schema === '') return next();
 
-  const { default: schema } = await import(`../schema/${mappingHelper.schema}.schema.js`);
+  const schema = await import(`../schema/${mappingHelper.schema}.schema.js`);
 
-  const { isVerified, data } = validation({ schema, data: body });
+  const { isVerified } = validation({ schema, data: req });
+
   if (!isVerified) return res.status(422).json({ message: 'Your input params is incorrect!' });
-  req.body = data;
   return next();
 };
 
