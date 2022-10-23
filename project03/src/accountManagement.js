@@ -18,11 +18,29 @@ import confirmPasswordSchema from './schema/accountManagement/confirmPassword.sc
 
 const { userPoolId: UserPoolId, userClientId: ClientId } = process.env;
 
+/**
+ * @api {post} /signIn 1 - Sign in your account
+ * @apiName signIn
+ * @apiGroup Account
+ *
+ * @apiBody {String} email Email of user.
+ * @apiBody {String} password Password of user.
+ *
+ * @apiSuccess {String} token This token use as Authorization for all request's Headers
+ *
+ * @apiSuccessExample Success:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "token": "eyJraWQiOiJwVFBmRUtsSk8wOUQ2WjArTk9L0Klz7ABzP0WZqYCuvKAVlr6fkjl_KJ6V5bXh3ThxiPqPyQgxrg...",
+ *     }
+ *
+ * @apiUse Error
+ */
 const signIn = async (event) => {
   console.log('😎 Sylitas | signIn triggered');
   try {
-    const isValid = validation({ schema: signInSchema, data: event.body });
-    if (!isValid) return { error: { message: 'Invalid input' } };
+    const { isVerified } = validation({ schema: signInSchema, data: event.body });
+    if (!isVerified) return { error: { message: 'Invalid input' } };
 
     const { email, password } = event.body;
     const params = {
@@ -48,11 +66,29 @@ const signIn = async (event) => {
   }
 };
 
+/**
+ * @api {post} /signUp 2 - Register your account
+ * @apiName signUp
+ * @apiGroup Account
+ *
+ * @apiBody {String} email Email of user.
+ * @apiBody {String} password Password of user.
+ *
+ * @apiSuccess {String} message Message contains notification.
+ *
+ * @apiSuccessExample Success:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "message": "User registration successful",
+ *     }
+ *
+ * @apiUse Error
+ */
 const signUp = async (event) => {
   console.log('😎 Sylitas | signUp triggered');
   try {
-    const isValid = validation({ schema: signUpSchema, data: event.body });
-    if (!isValid) return { error: { message: 'Invalid input' } };
+    const { isVerified } = validation({ schema: signUpSchema, data: event.body });
+    if (!isVerified) return { error: { message: 'Invalid input' } };
 
     const { email, password } = event.body;
     const params = {
@@ -100,11 +136,28 @@ const signUp = async (event) => {
   }
 };
 
+/**
+ * @api {post} /forgotPassword 3 - Find your password
+ * @apiName forgotPassword
+ * @apiGroup Account
+ *
+ * @apiBody {String} email Email of user.
+ *
+ * @apiSuccess {String} message Message contains notification.
+ *
+ * @apiSuccessExample Success:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "message": "The verify email just sent to your mailbox",
+ *     }
+ *
+ * @apiUse Error
+ */
 const forgotPassword = async (event) => {
   console.log('😎 Sylitas | forgotPassword triggered');
   try {
-    const isValid = validation({ schema: forgotPasswordSchema, data: event.body });
-    if (!isValid) return { error: { message: 'Invalid input' } };
+    const { isVerified } = validation({ schema: forgotPasswordSchema, data: event.body });
+    if (!isVerified) return { error: { message: 'Invalid input' } };
     const { email: Username } = event.body;
     await sendRecoverCodeToEmail({ ClientId, Username });
 
@@ -116,11 +169,30 @@ const forgotPassword = async (event) => {
   }
 };
 
+/**
+ * @api {post} /confirmPassword 4 - Verify forgot password
+ * @apiName confirmPassword
+ * @apiGroup Account
+ *
+ * @apiBody {String} email Email of user.
+ * @apiBody {String} code Code you can receive from email after forgotPassword.
+ * @apiBody {String} newPassword Password of user.
+ *
+ * @apiSuccess {String} message Message contains notification.
+ *
+ * @apiSuccessExample Success:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "message": "Your new password just updated successful",
+ *     }
+ *
+ * @apiUse Error
+ */
 const confirmPassword = async (event) => {
   console.log('😎 Sylitas | confirmPassword triggered');
   try {
-    const isValid = validation({ schema: confirmPasswordSchema, data: event.body });
-    if (!isValid) return { error: { message: 'Invalid input' } };
+    const { isVerified } = validation({ schema: confirmPasswordSchema, data: event.body });
+    if (!isVerified) return { error: { message: 'Invalid input' } };
     const { email: Username, code: ConfirmationCode, newPassword: Password } = event.body;
     await confirmForgotPassword({
       ClientId,

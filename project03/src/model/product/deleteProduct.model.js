@@ -3,6 +3,7 @@ import { update } from '../../libraries/dynamoDB';
 // import { getEmailFromReq } from '../../libraries/util';
 
 const deleteProduct = async (req) => {
+  console.log('😎 Sylitas | Triggered successful function deleteProduct (Model)');
   try {
     const {
       query: { productId },

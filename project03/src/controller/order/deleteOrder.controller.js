@@ -1,4 +1,4 @@
-import deleteProductModel from '../../model/product/deleteProduct.model';
+import deleteOrderModel from '../../model/order/deleteOrder.model';
 
 /**
  * @api {delete} /product 4 - Delete a product
@@ -20,13 +20,13 @@ import deleteProductModel from '../../model/product/deleteProduct.model';
  *
  * @apiUse Error
  */
-const deleteProduct = async (req, res) => {
-  console.log('😎 Sylitas | Triggered successful function deleteProduct (Controller)');
-  const response = await deleteProductModel(req);
+const deleteOrder = async (req, res) => {
+  console.log('😎 Sylitas | Triggered successful function deleteOrder (Controller)');
+  const response = await deleteOrderModel(req);
 
   if (response.error) return res.status(403).json({ message: 'Forbidden' });
 
   return res.status(200).json(response.data);
 };
 
-export default deleteProduct;
+export default deleteOrder;

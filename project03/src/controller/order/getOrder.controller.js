@@ -1,4 +1,4 @@
-import getProductModel from '../../model/product/getProduct.model';
+import getOrderModel from '../../model/order/getOrder.model';
 
 /**
  * @api {get} /product 3 - Get products
@@ -50,13 +50,13 @@ import getProductModel from '../../model/product/getProduct.model';
  *
  * @apiUse Error
  */
-const getProduct = async (req, res) => {
-  console.log('😎 Sylitas | Triggered successful function getProduct (Controller)');
-  const response = await getProductModel(req);
+const getOrder = async (req, res) => {
+  console.log('😎 Sylitas | Triggered successful function getOrder (Controller)');
+  const response = await getOrderModel(req);
 
   if (response.error) return res.status(403).json({ message: 'Forbidden' });
 
   return res.status(200).json(response.data);
 };
 
-export default getProduct;
+export default getOrder;

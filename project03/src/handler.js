@@ -18,3 +18,29 @@ app.use((req, res) => {
 });
 
 export const handler = serverless(app);
+
+/**
+ * @apiDefine Error
+ * @apiError (4xx) 4xx Client Error
+ * @apiErrorExample Forbidden
+ *     HTTP/1.1 403 Forbidden
+ *     {
+ *       "message": "Forbidden"
+ *     }
+ * @apiErrorExample Validate
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "message": "Your input params is incorrect!"
+ *     }
+ * @apiErrorExample Permission
+ *     HTTP/1.1 401 Unauthorized
+ *     {
+ *       "message": "You do not have permission!"
+ *     }
+ * @apiError (5xx) 5xx Server Error
+ * @apiErrorExample Internal Server Error
+ *     HTTP/1.1 500 Internal server error
+ *     {
+ *       "message": "Internal server error"
+ *     }
+ */

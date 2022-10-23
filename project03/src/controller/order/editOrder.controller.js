@@ -1,4 +1,4 @@
-import editProductModel from '../../model/product/editProduct.model';
+import editOrderModel from '../../model/order/editOrder.model';
 
 /**
  * @api {post} /product 2 - Edit a product
@@ -26,13 +26,13 @@ import editProductModel from '../../model/product/editProduct.model';
  *
  * @apiUse Error
  */
-const editProduct = async (req, res) => {
-  console.log('😎 Sylitas | Triggered successful function editProduct (Controller)');
-  const response = await editProductModel(req);
+const editOrder = async (req, res) => {
+  console.log('😎 Sylitas | Triggered successful function editOrder (Controller)');
+  const response = await editOrderModel(req);
 
   if (response.error) return res.status(403).json({ message: 'Forbidden' });
 
   return res.status(200).json(response.data);
 };
 
-export default editProduct;
+export default editOrder;

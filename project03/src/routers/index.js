@@ -2,16 +2,16 @@
 import apiInfo from './api';
 import controller from '../controller/index';
 import { validation } from '../libraries/ajv';
-import { DYNAMO_DB, ROLE, PERMISSION } from '../libraries/const';
+import { DYNAMO_DB } from '../libraries/const';
 import { getEmailFromReq } from '../libraries/util';
 import { query } from '../libraries/dynamoDB';
 
 const validatePermission = async (req, res, next) => {
   const {
-    mappingHelper: { method, isCheckRole },
+    mappingHelper: { isCheckRole },
   } = req;
 
-  if (!isCheckRole) return next();
+  if (!isCheckRole || isCheckRole.length === 0) return next();
   try {
     const email = getEmailFromReq(req);
     const params = {
@@ -26,15 +26,7 @@ const validatePermission = async (req, res, next) => {
     } = await query(params);
     const { role: userRole } = userInfo;
 
-    const methodAccepted = ROLE[Object.keys(ROLE).find((element) => element.toLowerCase() === userRole)].reduce(
-      (pre, cur) => {
-        pre.push(...PERMISSION[cur]);
-        return pre;
-      },
-      [],
-    );
-
-    if (methodAccepted.includes(method)) {
+    if (isCheckRole.includes(userRole)) {
       req.userInfo = userInfo;
       return next();
     }

@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "build:docs": "apidoc -i src -o documentation",
     "lint": "eslint ./src",
     "predeploy": "npm run lint -- --fix && rm -rf ./dist && webpack",
     "deploy": "sls deploy"
   },
   "dependencies": {
     "ajv": "^8.11.0",
+    "apidoc": "^0.53.1",
     "aws-sdk": "^2.1231.0",
     "babel-loader": "^8.2.5",
     "cors": "^2.8.5",
@@ -22,5 +24,18 @@
     "babel-eslint": "^10.1.0",
     "eslint-config-airbnb": "^19.0.4",
     "webpack-cli": "^4.10.0"
+  },
+  "apidoc": {
+    "name": "API Documentation",
+    "version": "1.0.0",
+    "description": "This is api doc for developer",
+    "title": "Documentation",
+    "url": "https://4j7rjmuju4.execute-api.us-east-1.amazonaws.com/dev",
+    "sampleUrl": "https://4j7rjmuju4.execute-api.us-east-1.amazonaws.com/dev",
+    "template": {
+      "forceLanguage": "en",
+      "withCompare": false,
+      "showRequiredLabels": true
+    }
   }
 }

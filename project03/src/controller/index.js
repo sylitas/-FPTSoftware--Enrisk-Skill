@@ -6,6 +6,11 @@ import editProduct from './product/editProduct.controller';
 import deleteProduct from './product/deleteProduct.controller';
 import getProduct from './product/getProduct.controller';
 
+import createOrder from './order/createOrder.controller';
+import editOrder from './order/editOrder.controller';
+import deleteOrder from './order/deleteOrder.controller';
+import getOrder from './order/getOrder.controller';
+
 export default {
   // user
   accountDetail,
@@ -16,4 +21,8 @@ export default {
   deleteProduct,
   getProduct,
   // order
+  createOrder,
+  editOrder,
+  deleteOrder,
+  getOrder,
 };

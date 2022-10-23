@@ -23,16 +23,4 @@ const PRODUCT_STATUS = {
   SOLD_OUT: 'SOLD_OUT',
 };
 
-const PERMISSION = {
-  READ: ['GET'],
-  MODIFY: ['PUT', 'POST', 'PATCH'],
-  DELETE: ['DELETE'],
-};
-
-const ROLE = {
-  ADMIN: ['READ', 'MODIFY', 'DELETE'],
-  CUSTOMER: ['READ'],
-  PRODUCT_OWNER: ['READ', 'MODIFY'],
-};
-
-export { DYNAMO_DB, PERMISSION, ROLE, PRODUCT_STATUS };
+export { DYNAMO_DB, PRODUCT_STATUS };

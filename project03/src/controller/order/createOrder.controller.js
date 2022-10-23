@@ -1,13 +1,11 @@
-import editProductModel from '../../model/product/editProduct.model';
+import createOrderModel from '../../model/order/createOrder.model';
 
 /**
- * @api {post} /product 2 - Edit a product
- * @apiName editProduct
- * @apiGroup Product
+ * @api {put} /product 1 - Create a order
+ * @apiName createOrder
+ * @apiGroup Order
  *
  * @apiHeader {String} Authorization Token of user after signIn
- *
- * @apiQuery {String} productId Id of product
  *
  * @apiBody {String = "books", "housewares", "electronics", "others"} tag Type of product
  * @apiBody {Number} price price of product (VND)
@@ -26,13 +24,13 @@ import editProductModel from '../../model/product/editProduct.model';
  *
  * @apiUse Error
  */
-const editProduct = async (req, res) => {
-  console.log('😎 Sylitas | Triggered successful function editProduct (Controller)');
-  const response = await editProductModel(req);
+const createOrder = async (req, res) => {
+  console.log('😎 Sylitas | Triggered successful function createOrder (Controller)');
+  const response = await createOrderModel(req);
 
   if (response.error) return res.status(403).json({ message: 'Forbidden' });
 
   return res.status(200).json(response.data);
 };
 
-export default editProduct;
+export default createOrder;

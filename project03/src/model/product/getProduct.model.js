@@ -1,4 +1,7 @@
-import { DYNAMO_DB, PRODUCT_STATUS } from '../../libraries/const';
+import {
+  DYNAMO_DB,
+  // PRODUCT_STATUS
+} from '../../libraries/const';
 import { query } from '../../libraries/dynamoDB';
 import { base64Decoded, base64Encoded } from '../../libraries/util';
 
@@ -45,10 +48,16 @@ const getProduct = async (req) => {
       TableName: DYNAMO_DB.TABLE.PRODUCTS_TABLE.NAME,
       IndexName: DYNAMO_DB.TABLE.PRODUCTS_TABLE.INDEX_USER_ID,
       KeyConditionExpression: '#userId = :userId',
-      FilterExpression: '(#status <> :status)',
-      ExpressionAttributeNames: { '#userId': 'userId', '#status': 'status' },
-      ExpressionAttributeValues: { ':userId': userId, ':status': PRODUCT_STATUS.DELETED },
-      Limit: limit,
+      // FilterExpression: '(#status <> :status)',
+      ExpressionAttributeNames: {
+        '#userId': 'userId',
+        // '#status': 'status'
+      },
+      ExpressionAttributeValues: {
+        ':userId': userId,
+        // ':status': PRODUCT_STATUS.DELETED
+      },
+      Limit: parseInt(limit, 10),
     };
 
     if ([paginateToken, paginateToken !== ''].every(Boolean)) {
