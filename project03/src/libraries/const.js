@@ -1,4 +1,4 @@
-const DYNAMO_DB = {
+export const DYNAMO_DB = {
   TABLE: {
     USERS_TABLE: {
       NAME: process.env.usersTableName,
@@ -9,13 +9,13 @@ const DYNAMO_DB = {
       INDEX_USER_ID: process.env.productsTableIndexUserId,
     },
     ORDERS_TABLE: {
-      NAME: process.env.ordersTable,
+      NAME: process.env.ordersTableName,
       INDEX_USER_ID: process.env.ordersTableIndexUserId,
     },
   },
 };
 
-const PRODUCT_STATUS = {
+export const PRODUCT_STATUS = {
   CREATED: 'CREATED',
   VERIFIED: 'VERIFIED',
   DELETED: 'DELETED',
@@ -23,4 +23,16 @@ const PRODUCT_STATUS = {
   SOLD_OUT: 'SOLD_OUT',
 };
 
-export { DYNAMO_DB, PRODUCT_STATUS };
+export const ORDER_STATUS = {
+  PENDING: 'PENDING',
+  PAID: 'PAID',
+};
+
+export const DELIVER_STATUS = {
+  NONE: 'NONE',
+  PREPARE: 'PREPARE',
+  PENDING: 'PENDING',
+  DELIVERED: 'DELIVERED',
+};
+
+export const CURRENCY = process.env.Currency;

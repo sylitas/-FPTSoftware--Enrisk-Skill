@@ -68,6 +68,7 @@ provider:
           Resource: '*'
   environment:
     ConfigLimit: 10mb
+    Currency: VND
     # product - dynamodb
     productsTableName: ${self:custom.dynamoDBConfig.tableName.productsTable}
     productsTableIndexUserId: ${self:custom.dynamoDBConfig.indexName.productsTableUserIdIndex}
