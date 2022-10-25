@@ -1,20 +1,67 @@
-/* eslint-disable no-unused-vars */
 import { v4 as uuIdv4 } from 'uuid';
 import { CURRENCY, DELIVER_STATUS, DYNAMO_DB, ORDER_STATUS } from '../../libraries/const';
-import { put, query } from '../../libraries/dynamoDB';
-import { getAllProductsWithIds } from './common';
+import { put } from '../../libraries/dynamoDB';
+import { getAllProductsWithIds, getPendingOrder } from './common';
 
-const getAllOrders = async (userId) => {
-  const params = {
-    TableName: DYNAMO_DB.TABLE.ORDERS_TABLE.NAME,
-    IndexName: DYNAMO_DB.TABLE.ORDERS_TABLE.INDEX_USER_ID,
-    KeyConditionExpression: '#userId = :userId',
-    FilterExpression: '#status = :status',
-    ExpressionAttributeNames: { '#userId': 'userId', '#status': 'status' },
-    ExpressionAttributeValues: { ':userId': userId, ':status': ORDER_STATUS.PENDING },
-  };
-  const { Items = [] } = await query(params);
-  return Items;
+const updateOldDetail = async (orderDetail, productsInfo, pendingOrder) => {
+  const newOrder = pendingOrder;
+  newOrder.updatedAt = new Date().toISOString();
+  orderDetail.forEach(({ productId, amount }) => {
+    productsInfo.forEach((productInfo) => {
+      if (productInfo.productId === productId) {
+        let indexProduct;
+        if (
+          newOrder.products.find((product, index) => {
+            if (product.productId === productId) {
+              indexProduct = index;
+              return true;
+            }
+            return false;
+          })
+        ) {
+          newOrder.products[indexProduct].amount += amount;
+        } else {
+          newOrder.products.push(productId, amount);
+        }
+        newOrder.totalPrice += productInfo.price * amount;
+        if (!newOrder.productOwnerIds.includes(productInfo.userId)) newOrder.productOwnerIds.push(productInfo.userId);
+        if (!newOrder.referenceTag.includes(productInfo.tag)) newOrder.referenceTag.push(productInfo.tag);
+      }
+    });
+  });
+
+  return newOrder;
+};
+
+const createNewOrder = async (userId, orderDetail, productsInfo) => {
+  const order = orderDetail.reduce(
+    (pre, { productId, amount }) => {
+      productsInfo.forEach((productInfo) => {
+        if (productInfo.productId === productId) {
+          pre.products.push({ productId, amount });
+          if (!pre.productOwnerIds.includes(productInfo.userId)) pre.productOwnerIds.push(productInfo.userId);
+          if (!pre.referenceTag.includes(productInfo.tag)) pre.referenceTag.push(productInfo.tag);
+          pre.totalPrice += productInfo.price * amount;
+        }
+      });
+      return pre;
+    },
+    {
+      orderId: uuIdv4(),
+      userId,
+      products: [],
+      productOwnerIds: [],
+      referenceTag: [],
+      totalPrice: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: '',
+      currency: CURRENCY,
+      status: ORDER_STATUS.PENDING,
+      deliverStatus: DELIVER_STATUS.NONE,
+    },
+  );
+
+  return order;
 };
 
 const createOrder = async (req) => {
@@ -23,42 +70,24 @@ const createOrder = async (req) => {
   try {
     const {
       userInfo: { userId },
-      body: { productIds = [] },
+      body: { orderDetail = [] },
     } = req;
 
-    const isOrderExisted = await getAllOrders(userId);
-    if (isOrderExisted.length) return { error: { message: 'Can not create more order' } };
+    console.log('😎 Sylitas | orderDetail : ', JSON.stringify(orderDetail, null, 2));
 
-    const products = await getAllProductsWithIds(productIds);
-    const order = products.reduce(
-      (orderInfo, product) => {
-        const { userId: productOwnerId, tag, price, productId } = product;
-        if (!orderInfo.productIds.includes(productId)) orderInfo.productIds.push(productId);
-        if (!orderInfo.productOwnerIds.includes(productOwnerId)) orderInfo.productOwnerIds.push(productOwnerId);
-        if (!orderInfo.referenceTag.includes(tag)) orderInfo.referenceTag.push(tag);
-        orderInfo.totalPrice += price;
-        return orderInfo;
-      },
-      {
-        orderId: uuIdv4(),
-        userId,
-        productIds: [],
-        productOwnerIds: [],
-        referenceTag: [],
-        totalPrice: 0,
-        createdAt: new Date().toISOString(),
-        updatedAt: '',
-        currency: CURRENCY,
-        status: ORDER_STATUS.PENDING,
-        deliverStatus: DELIVER_STATUS.NONE,
-      },
-    );
+    let recentOrder;
 
-    console.log('😎 Sylitas | order : ', JSON.stringify(order, null, 2));
+    const pendingOrder = await getPendingOrder(userId);
+    const productsInfo = await getAllProductsWithIds(orderDetail.map((productInfo) => productInfo.productId));
+    console.log('😎 Sylitas | productsInfo : ', JSON.stringify(productsInfo, null, 2));
+    if (pendingOrder) {
+      recentOrder = await updateOldDetail(orderDetail, productsInfo, pendingOrder);
+    } else {
+      recentOrder = await createNewOrder(userId, orderDetail, productsInfo);
+    }
 
-    await put({ TableName: DYNAMO_DB.TABLE.ORDERS_TABLE.NAME, Item: order });
-
-    return { data: { order } };
+    await put({ TableName: DYNAMO_DB.TABLE.ORDERS_TABLE.NAME, Item: recentOrder });
+    return { data: { order: recentOrder } };
   } catch (error) {
     console.error('😎 Sylitas | Error :', error);
     const message = error.message ? error.message : 'An error occurred at createOrder';

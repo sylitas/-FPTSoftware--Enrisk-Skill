@@ -30,8 +30,7 @@ const editOrder = async (req, res) => {
   console.log('😎 Sylitas | Triggered successful function editOrder (Controller)');
   const response = await editOrderModel(req);
 
-  if (response.error) return res.status(403).json({ message: 'Forbidden' });
-
+  if (response.error) if (response.error) return res.status(403).json({ message: 'Forbidden' });
   return res.status(200).json(response.data);
 };
 

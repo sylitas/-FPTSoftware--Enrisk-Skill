@@ -13,7 +13,7 @@ export default {
   changePassword: {
     endpoint: '/user',
     method: 'POST',
-    schema: '',
+    schema: 'user/changePassword',
     isCheckRole: ['admin', 'customer', 'product_owner'],
   },
   // management product
@@ -45,25 +45,25 @@ export default {
   createOrder: {
     endpoint: '/order',
     method: 'PUT',
-    schema: '',
+    schema: 'order/createOrder',
     isCheckRole: ['admin', 'customer'],
   },
   editOrder: {
     endpoint: '/order',
     method: 'POST',
-    schema: '',
+    schema: 'order/editOrder',
     isCheckRole: ['admin', 'customer'],
   },
   deleteOrder: {
     endpoint: '/order',
     method: 'DELETE',
-    schema: '',
+    schema: 'order/deleteOrder',
     isCheckRole: ['admin', 'customer'],
   },
   getOrder: {
     endpoint: '/order',
     method: 'GET',
-    schema: '',
+    schema: 'order/getOrder',
     isCheckRole: ['admin', 'customer'],
   },
 };

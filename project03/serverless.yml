@@ -3,6 +3,9 @@ app: project03
 service: project03
 frameworkVersion: '3'
 
+plugins:
+  - serverless-offline
+
 custom:
   dynamoDBConfig:
     tableName:

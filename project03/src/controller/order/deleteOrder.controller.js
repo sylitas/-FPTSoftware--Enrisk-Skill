@@ -24,7 +24,7 @@ const deleteOrder = async (req, res) => {
   console.log('😎 Sylitas | Triggered successful function deleteOrder (Controller)');
   const response = await deleteOrderModel(req);
 
-  if (response.error) return res.status(403).json({ message: 'Forbidden' });
+  if (response.error) if (response.error) return res.status(403).json({ message: 'The order must be paid first' });
 
   return res.status(200).json(response.data);
 };

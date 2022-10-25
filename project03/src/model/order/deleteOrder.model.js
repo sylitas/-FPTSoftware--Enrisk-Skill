@@ -1,38 +1,34 @@
-// import { DYNAMO_DB, PRODUCT_STATUS } from '../../libraries/const';
-// import { update } from '../../libraries/dynamoDB';
-// import { getEmailFromReq } from '../../libraries/util';
+import { DYNAMO_DB, ORDER_STATUS } from '../../libraries/const';
+import { deleteRecord } from '../../libraries/dynamoDB';
 
-const deleteOrder = async () => {
+const deleteOrder = async (req) => {
   console.log('😎 Sylitas | Triggered successful function deleteOrder (Model)');
 
-  // try {
-  //   const {
-  //     query: { productId },
-  //   } = req;
+  try {
+    const {
+      query: { orderId },
+    } = req;
 
-  //   const params = {
-  //     TableName: DYNAMO_DB.TABLE.PRODUCTS_TABLE.NAME,
-  //     Key: { productId },
-  //     UpdateExpression: 'SET #status = :status, #updatedAt = :updatedAt',
-  //     ExpressionAttributeNames: {
-  //       '#status': 'status',
-  //       '#updatedAt': 'updatedAt',
-  //     },
-  //     ExpressionAttributeValues: {
-  //       ':status': PRODUCT_STATUS.DELETED,
-  //       ':updatedAt': new Date().toISOString(),
-  //     },
-  //   };
-  //   console.log('😎 Sylitas | params : ', JSON.stringify(params, null, 2));
+    const params = {
+      TableName: DYNAMO_DB.TABLE.ORDERS_TABLE.NAME,
+      Key: { orderId },
+      ConditionExpression: '#status = :status',
+      ExpressionAttributeNames: {
+        '#status': 'status',
+      },
+      ExpressionAttributeValues: {
+        ':status': ORDER_STATUS.PAID,
+      },
+    };
+    console.log('😎 Sylitas | params : ', JSON.stringify(params, null, 2));
 
-  //   await update(params);
+    await deleteRecord(params);
 
-  return { data: { message: 'Triggered deleteOrder' } };
-  // } catch (error) {
-  //   console.error('😎 Sylitas | Error :', error);
-  //   const message = error.message ? error.message : 'An error occurred at createProduct';
-  //   return { error: { message } };
-  // }
+    return { data: { message: 'Deleted order successfully' } };
+  } catch (error) {
+    console.error('😎 Sylitas | Error :', error);
+    return { error: { message: 'Can not find orderId' } };
+  }
 };
 
 export default deleteOrder;

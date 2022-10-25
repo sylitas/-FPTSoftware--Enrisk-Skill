@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import apiInfo from './api';
 import controller from '../controller/index';
 import { validation } from '../libraries/ajv';
@@ -40,11 +39,13 @@ const validateRequest = async (req, res, next) => {
   const { body, mappingHelper } = req;
   if (!body || !mappingHelper.schema || mappingHelper.schema === '') return next();
 
-  const schema = await import(`../schema/${mappingHelper.schema}.schema.js`);
+  const schema = await import(`../schema/${mappingHelper.schema}.schema.json`);
 
-  const { isVerified } = validation({ schema, data: req });
+  const { isVerified, errors } = validation({ schema, data: req });
 
-  if (!isVerified) return res.status(422).json({ message: 'Your input params is incorrect!' });
+  if (!isVerified) {
+    return res.status(422).json({ message: errors.length ? errors.join(', ') : 'Your input params is incorrect!' });
+  }
   return next();
 };
 

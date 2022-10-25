@@ -26,5 +26,6 @@ module.exports = {
     'linebreak-style': 'off',
     'max-len': ['error', { code: 120 }],
     'import/prefer-default-export': 'off',
+    'implicit-arrow-linebreak': 'off',
   },
 };

@@ -1,0 +1,16 @@
+{
+  "type": "object",
+  "properties": {
+    "query": {
+      "type": "object",
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["orderId"]
+    }
+  },
+  "required": ["query"]
+}
