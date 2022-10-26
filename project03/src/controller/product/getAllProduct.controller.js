@@ -1,13 +1,12 @@
-import getProductModel from '../../model/product/getProduct.model';
+import getAllProductModel from '../../model/product/getAllProduct.model';
 
 /**
- * @api {get} /product 3 - Get products from product owner
- * @apiName getProduct
+ * @api {get} /product/productList 5 - Get all products
+ * @apiName getAllProduct
  * @apiGroup Product
  *
  * @apiHeader {String} Authorization Token of user after signIn
  *
- * @apiQuery {String} [productIds] Multiple Id of products
  * @apiQuery {String} [fields] Fields that you want to get
  * @apiQuery {Number} [limit] limit limit of products
  * @apiQuery {String} [paginateToken] Token for paginate
@@ -50,13 +49,13 @@ import getProductModel from '../../model/product/getProduct.model';
  *
  * @apiUse Error
  */
-const getProduct = async (req, res) => {
-  console.log('😎 Sylitas | Triggered successful function getProduct (Controller)');
-  const response = await getProductModel(req);
+const getAllProduct = async (req, res) => {
+  console.log('😎 Sylitas | Triggered successful function getAllProduct (Controller)');
+  const response = await getAllProductModel(req);
 
   if (response.error) return res.status(403).json({ message: 'Forbidden' });
 
   return res.status(200).json(response.data);
 };
 
-export default getProduct;
+export default getAllProduct;

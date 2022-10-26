@@ -7,6 +7,14 @@ import createOrderModel from '../../model/order/createOrder.model';
  *
  * @apiHeader {String} Authorization Token of user after signIn
  *
+ * @apiParamExample {json} sample request
+ *      {
+ *        "orderDetail": [
+ *           "productId":"",
+ *           "amount": 1
+ *        ]
+ *      }
+ *
  * @apiBody {Array} orderDetail the information of order.
  * @apiBody {Object} orderDetail[productInfo] The information of product.
  * @apiBody {String} productInfo.productId productId the id of product.

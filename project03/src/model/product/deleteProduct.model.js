@@ -1,6 +1,5 @@
 import { DYNAMO_DB, PRODUCT_STATUS } from '../../libraries/const';
 import { update } from '../../libraries/dynamoDB';
-// import { getEmailFromReq } from '../../libraries/util';
 
 const deleteProduct = async (req) => {
   console.log('😎 Sylitas | Triggered successful function deleteProduct (Model)');

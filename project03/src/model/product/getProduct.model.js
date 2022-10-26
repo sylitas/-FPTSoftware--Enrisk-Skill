@@ -1,7 +1,4 @@
-import {
-  DYNAMO_DB,
-  // PRODUCT_STATUS
-} from '../../libraries/const';
+import { DYNAMO_DB } from '../../libraries/const';
 import { query } from '../../libraries/dynamoDB';
 import { base64Decoded, base64Encoded } from '../../libraries/util';
 
@@ -22,7 +19,6 @@ const generateProjectionExpression = (params, fields) => {
 
 const generateFilterExpression = (params, productIds) => {
   if ([productIds, productIds !== ''].every(Boolean)) {
-    params.FilterExpression += ' AND ';
     const filterExpressionAddition = productIds
       .split(',')
       .reduce((pre, cur, index) => {
@@ -48,14 +44,12 @@ const getProduct = async (req) => {
       TableName: DYNAMO_DB.TABLE.PRODUCTS_TABLE.NAME,
       IndexName: DYNAMO_DB.TABLE.PRODUCTS_TABLE.INDEX_USER_ID,
       KeyConditionExpression: '#userId = :userId',
-      // FilterExpression: '(#status <> :status)',
+      FilterExpression: '',
       ExpressionAttributeNames: {
         '#userId': 'userId',
-        // '#status': 'status'
       },
       ExpressionAttributeValues: {
         ':userId': userId,
-        // ':status': PRODUCT_STATUS.DELETED
       },
       Limit: parseInt(limit, 10),
     };
@@ -67,6 +61,7 @@ const getProduct = async (req) => {
     generateProjectionExpression(params, fields);
     generateFilterExpression(params, productIds);
 
+    if (params.FilterExpression === '') delete params.FilterExpression;
     console.log('😎 Sylitas | params : ', JSON.stringify(params, null, 2));
 
     const { Items, LastEvaluatedKey } = await query(params);
@@ -79,7 +74,7 @@ const getProduct = async (req) => {
     };
   } catch (error) {
     console.error('😎 Sylitas | Error :', error);
-    const message = error.message ? error.message : 'An error occurred at createProduct';
+    const message = error.message ? error.message : 'An error occurred at getProduct';
     return { error: { message } };
   }
 };

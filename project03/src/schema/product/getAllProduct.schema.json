@@ -4,9 +4,6 @@
     "query": {
       "type": "object",
       "properties": {
-        "productIds": {
-          "type": "string"
-        },
         "limit": {
           "type": "string"
         },

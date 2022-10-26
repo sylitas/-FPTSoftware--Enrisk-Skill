@@ -124,7 +124,14 @@ functions:
           path: 'product'
       - http:
           <<: *HasAuthorize
+          path: 'product/{proxy+}'
+      - http:
+          <<: *HasAuthorize
           path: 'order'
+      - http:
+          <<: *NoAuthorize
+          path: 'documentation'
+          method: get
 
 resources:
   Resources:

@@ -11,6 +11,10 @@ app.use(cors());
 app.use(express.json({ limit }));
 app.use(express.urlencoded({ limit, extended: true }));
 
+app.get('/documentation', (req, res) => {
+  res.redirect('https://shopping-time-api-documentation.s3.amazonaws.com/apidoc/index.html');
+});
+
 setupRouter(app);
 
 app.use((req, res) => {

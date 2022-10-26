@@ -41,6 +41,12 @@ export default {
     schema: 'product/getProduct',
     isCheckRole: ['admin', 'product_owner'],
   },
+  getAllProduct: {
+    endpoint: '/product/productList',
+    method: 'GET',
+    schema: 'product/getAllProduct',
+    isCheckRole: [],
+  },
   // management order
   createOrder: {
     endpoint: '/order',

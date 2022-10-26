@@ -4,11 +4,12 @@
   "description": "",
   "scripts": {
     "start": "nodemon --exec \"webpack && sls offline start\"",
-    "build:docs": "apidoc -i src -o documentation",
-    "deploy:docs": "build:docs && aws s3 cp ./documentation s3://dev-api-document/ --recursive",
+    "predeploy:docs": "apidoc -i src -o documentation",
+    "deploy:docs": "aws s3 cp ./documentation/ s3://shopping-time-api-documentation/apidoc --recursive --acl public-read",
     "lint": "eslint ./src",
     "predeploy": "npm run lint -- --fix && rm -rf ./dist && webpack",
-    "deploy": "sls deploy"
+    "deploy": "sls deploy",
+    "deploy:total": "npm run deploy:docs && npm run deploy"
   },
   "dependencies": {
     "ajv": "^8.11.0",

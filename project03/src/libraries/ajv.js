@@ -10,5 +10,5 @@ export const validation = ({ schema, data }) => {
   if (isValid) {
     return { isVerified: true };
   }
-  return { isVerified: false, errors: validate.errors.map((error) => error.message) || [] };
+  return { isVerified: false };
 };

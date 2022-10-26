@@ -5,6 +5,7 @@ import createProduct from './product/createProduct.controller';
 import editProduct from './product/editProduct.controller';
 import deleteProduct from './product/deleteProduct.controller';
 import getProduct from './product/getProduct.controller';
+import getAllProduct from './product/getAllProduct.controller';
 
 import createOrder from './order/createOrder.controller';
 import editOrder from './order/editOrder.controller';
@@ -20,6 +21,7 @@ export default {
   editProduct,
   deleteProduct,
   getProduct,
+  getAllProduct,
   // order
   createOrder,
   editOrder,
