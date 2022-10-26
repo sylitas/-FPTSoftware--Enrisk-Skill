@@ -1,22 +1,23 @@
 import deleteOrderModel from '../../model/order/deleteOrder.model';
 
 /**
- * @api {delete} /product 4 - Delete a product
- * @apiName deleteProduct
- * @apiGroup Product
+ * @api {put} /order 4 - Delete a order
+ * @apiName deleteOrder
+ * @apiGroup Order
+ *
+ * @apiDescription This endpoint can only be use when the order is paid
  *
  * @apiHeader {String} Authorization Token of user after signIn
  *
- * @apiQuery {String} productId Id of product
+ * @apiQuery {String} orderId Id of order
  *
- * @apiSuccess {String} message A message contain notification.
+ * @apiSuccess {String} message this is notification
  *
  * @apiSuccessExample Success:
  *     HTTP/1.1 200 OK
- *     {
- *         "message": "Product deleted"
- *     }
- *
+ *   {
+ *     "message":"Deleted order successfully"
+ *   }
  *
  * @apiUse Error
  */

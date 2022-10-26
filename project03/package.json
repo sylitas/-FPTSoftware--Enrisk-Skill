@@ -5,6 +5,7 @@
   "scripts": {
     "start": "nodemon --exec \"webpack && sls offline start\"",
     "build:docs": "apidoc -i src -o documentation",
+    "deploy:docs": "build:docs && aws s3 cp ./documentation s3://dev-api-document/ --recursive",
     "lint": "eslint ./src",
     "predeploy": "npm run lint -- --fix && rm -rf ./dist && webpack",
     "deploy": "sls deploy"
